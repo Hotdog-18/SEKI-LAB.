@@ -1,0 +1,1307 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<style>
+:root { color-scheme: light; padding-top: env(safe-area-inset-top, 0px); padding-bottom: env(safe-area-inset-bottom, 0px); }
+html, body { margin: 0; }
+img { max-width: 100%; }
+[hidden] { display: none !important; }
+</style>
+<title>SEKI LAB.</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@500;700&family=Zen+Kaku+Gothic+New:wght@400;500;700;900&display=swap">
+<style>
+/* Layout: lab-plate look. Wordmark on top, a well-plate style seat grid (A-E rows, 1-5 columns) under a FRONT bar, swipeable slides for each round, then actions. On wide tablets the settings sit in a right column. */
+:root {
+  --font-mono: 'IBM Plex Mono', ui-monospace, 'SFMono-Regular', Menlo, monospace;
+  --font-body: 'Zen Kaku Gothic New', 'Hiragino Kaku Gothic ProN', 'Yu Gothic', 'Meiryo', sans-serif;
+  --bg: #eff3f1;
+  --panel: #ffffff;
+  --well: #f7faf8;
+  --ink: #0f1a17;
+  --ink-soft: #5a6a64;
+  --line: #d2dbd7;
+  --line-strong: #aebcb6;
+  --accent: #ff5b14;
+  --accent-ink: #0f1a17;
+  --fixed: #0f7a63;
+  --warn: #b3341a;
+  --focus: #1f6feb;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #0d1311;
+    --panel: #151d1a;
+    --well: #1b2521;
+    --ink: #e8f0ec;
+    --ink-soft: #9db0a8;
+    --line: #2b3833;
+    --line-strong: #44544d;
+    --accent: #ff7a3d;
+    --accent-ink: #0d1311;
+    --fixed: #5fd1b0;
+    --warn: #ff9b7a;
+    --focus: #8fbaff;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #0d1311;
+  --panel: #151d1a;
+  --well: #1b2521;
+  --ink: #e8f0ec;
+  --ink-soft: #9db0a8;
+  --line: #2b3833;
+  --line-strong: #44544d;
+  --accent: #ff7a3d;
+  --accent-ink: #0d1311;
+  --fixed: #5fd1b0;
+  --warn: #ff9b7a;
+  --focus: #8fbaff;
+  color-scheme: dark;
+}
+
+* { box-sizing: border-box; }
+button, input, textarea { touch-action: manipulation; -webkit-tap-highlight-color: transparent; }
+body {
+  background: var(--bg);
+  color: var(--ink);
+  font-family: var(--font-body);
+  font-size: 16px;
+  line-height: 1.6;
+  text-align: center;
+  padding-block: 20px 56px;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+}
+.wrap { max-width: 1120px; margin-inline: auto; display: grid; gap: 24px; }
+.main { display: grid; gap: 16px; min-width: 0; align-content: start; }
+@media (min-width: 980px) {
+  .wrap { grid-template-columns: minmax(0, 1fr) 330px; align-items: start; }
+  header.top { grid-column: 1 / -1; }
+}
+:focus-visible { outline: 3px solid var(--focus); outline-offset: 2px; }
+
+/* header */
+header.top { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: center; text-align: center; gap: 4px 16px; }
+.mark {
+  margin: 0;
+  font-family: var(--font-mono);
+  font-weight: 700;
+  font-size: clamp(2rem, 7vw, 2.8rem);
+  line-height: 1.1;
+  letter-spacing: .02em;
+}
+.mark .dot { color: var(--accent); }
+.tagline { margin: 0; color: var(--ink-soft); font-size: .92rem; }
+
+.langrow { flex: 0 0 100%; display: flex; justify-content: center; margin-top: 6px; }
+.langrow .seg button { min-height: 40px; font-size: .85rem; padding: .3rem .9rem; }
+
+/* toolbar */
+.toolbar { display: flex; flex-wrap: wrap; gap: 8px 16px; align-items: center; justify-content: center; text-align: center; }
+.seg { display: inline-flex; border: 1.5px solid var(--line-strong); border-radius: 10px; overflow: hidden; background: var(--panel); }
+.seg button {
+  font-family: var(--font-body);
+  font-weight: 700;
+  font-size: .95rem;
+  min-height: 46px;
+  padding: .4rem 1rem;
+  border: 0;
+  background: transparent;
+  color: var(--ink-soft);
+  cursor: pointer;
+}
+.seg button[aria-pressed="true"] { background: var(--ink); color: var(--panel); }
+.meta { margin: 0; font-size: .88rem; color: var(--ink-soft); min-width: 0; flex: 0 1 auto; text-align: center; }
+.meta .warn { color: var(--warn); font-weight: 700; }
+
+.statusrow { display: flex; flex-wrap: wrap; align-items: center; justify-content: center; text-align: center; gap: 8px 12px; }
+.status {
+  font-family: var(--font-mono);
+  font-weight: 700;
+  font-size: .88rem;
+  line-height: 1;
+  padding: .55rem .8rem;
+  border-radius: 8px;
+  border: 1.5px solid var(--line-strong);
+  background: var(--panel);
+  font-variant-numeric: tabular-nums;
+}
+.status[hidden] { display: none; }
+.status.live { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); }
+.hint { margin: 0; font-size: .88rem; color: var(--ink-soft); flex: 0 1 auto; min-width: 0; }
+.hint:empty { display: none; }
+
+.nav { display: flex; align-items: center; gap: 8px; }
+.nav[hidden] { display: none; }
+.nav .arrow {
+  flex: none;
+  width: 46px;
+  height: 46px;
+  border-radius: 10px;
+  border: 1.5px solid var(--line-strong);
+  background: var(--panel);
+  color: var(--ink);
+  font-size: 1.2rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+.nav .arrow:disabled { opacity: .35; cursor: not-allowed; }
+.tabs { display: flex; flex-wrap: wrap; gap: 6px; flex: 1; min-width: 0; justify-content: center; }
+.tab {
+  font-family: var(--font-mono);
+  font-weight: 700;
+  font-size: .95rem;
+  min-width: 52px;
+  min-height: 46px;
+  padding: .3rem .8rem;
+  border-radius: 10px;
+  border: 1.5px solid var(--line-strong);
+  background: var(--panel);
+  color: var(--ink-soft);
+  cursor: pointer;
+}
+.tab[aria-selected="true"] { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); }
+
+/* plate */
+.front, .rear { width: 100%; max-width: 780px; margin-inline: auto; text-align: center; }
+.front {
+  background: var(--ink);
+  color: var(--panel);
+  font-weight: 700;
+  font-size: .85rem;
+  letter-spacing: .35em;
+  padding: .55rem .5rem .55rem calc(.5rem + .35em);
+  border-radius: 6px;
+}
+.rear { color: var(--ink-soft); font-size: .85rem; letter-spacing: .3em; margin-top: -4px; }
+
+.track {
+  display: flex;
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  overscroll-behavior-x: contain;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+}
+.track::-webkit-scrollbar { display: none; }
+.slide { flex: 0 0 100%; min-width: 0; scroll-snap-align: start; scroll-snap-stop: always; }
+
+.plate {
+  --gap: 6px;
+  display: grid;
+  grid-template-columns: repeat(var(--cols), minmax(0, 1fr));
+  gap: var(--gap);
+  container-type: inline-size;
+  width: 100%;
+  max-width: 780px;
+  margin-inline: auto;
+}
+@media (min-width: 700px) { .plate { --gap: 10px; } }
+.ax {
+  font-family: var(--font-mono);
+  font-weight: 700;
+  font-size: .8rem;
+  color: var(--ink-soft);
+  display: grid;
+  place-items: center;
+  min-height: 1.2rem;
+  font-variant-numeric: tabular-nums;
+}
+
+.seat {
+  --fs: clamp(12px, calc((100cqw - var(--cols) * var(--gap)) / var(--cols) * .46), 54px);
+  position: relative;
+  overflow: hidden;
+  min-width: 0;
+  aspect-ratio: 1 / .86;
+  padding: 0;
+  display: grid;
+  place-items: center;
+  border: 1.5px solid var(--line-strong);
+  border-radius: 10px;
+  background: var(--panel);
+  color: var(--ink);
+  font-family: var(--font-mono);
+  font-weight: 700;
+  font-size: var(--fs);
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+  user-select: none;
+  -webkit-user-select: none;
+}
+button.seat { cursor: pointer; }
+.seat.empty { color: var(--ink-soft); background: var(--well); }
+.seat.empty .num { font-family: var(--font-body); font-size: .55em; font-weight: 500; }
+.seat.off { background: transparent; border-style: dashed; border-color: var(--line); color: var(--ink-soft); }
+.seat.off .num { font-weight: 500; }
+.seat.fixed { border-color: var(--fixed); border-width: 2px; }
+.seat.fixed::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 28%;
+  aspect-ratio: 1;
+  background: var(--fixed);
+  clip-path: polygon(0 0, 100% 0, 100% 100%);
+}
+.seat.rolling { background: var(--well); color: var(--ink-soft); }
+.seat.sel { outline: 3px solid var(--focus); outline-offset: 2px; }
+.seat.hit { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); }
+.seat.pop { animation: pop .45s ease-out; }
+@keyframes pop {
+  0% { transform: scale(.78); background: var(--accent); }
+  55% { transform: scale(1.1); }
+  100% { transform: scale(1); background: var(--panel); }
+}
+@media (prefers-reduced-motion: reduce) { .seat.pop { animation: none; } }
+
+.editor { display: grid; gap: 10px; padding: 14px; border: 1.5px solid var(--fixed); border-radius: 12px; background: var(--panel); }
+.editor[hidden] { display: none; }
+.ed-title { margin: 0; font-weight: 700; }
+.row { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; justify-content: center; }
+
+.actions { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; justify-content: center; }
+.rounds { flex: 0 0 100%; display: flex; flex-direction: column; align-items: center; gap: 4px; }
+.rounds .lab { font-size: .9rem; }
+.btn {
+  font-family: var(--font-body);
+  font-weight: 700;
+  font-size: 1rem;
+  min-height: 50px;
+  padding: .6rem 1.2rem;
+  border-radius: 12px;
+  border: 1.5px solid var(--ink);
+  background: var(--panel);
+  color: var(--ink);
+  cursor: pointer;
+}
+.btn.small { min-height: 46px; font-size: .95rem; padding: .4rem .9rem; }
+.btn.primary {
+  flex: 1 1 220px;
+  background: var(--accent);
+  border-color: var(--accent);
+  color: var(--accent-ink);
+  font-size: 1.2rem;
+  min-height: 60px;
+}
+.btn.confirm { background: var(--ink); color: var(--panel); }
+.btn:disabled { opacity: .45; cursor: not-allowed; }
+.note { margin: 0; min-height: 1.6em; color: var(--ink-soft); }
+.note.warn { color: var(--warn); font-weight: 700; }
+
+.find { display: flex; flex-direction: column; gap: 6px; align-items: center; justify-content: center; }
+.find label { font-weight: 700; font-size: .9rem; }
+.find output { color: var(--ink-soft); font-size: .92rem; min-width: 0; }
+
+input[type="number"], textarea {
+  font-family: var(--font-mono);
+  font-size: 16px;
+  color: var(--ink);
+  background: var(--panel);
+  border: 1.5px solid var(--line-strong);
+  border-radius: 8px;
+  padding: .5rem .7rem;
+  min-height: 46px;
+}
+input[type="number"] { width: 6.5rem; }
+textarea { width: 100%; text-align: left; min-height: 72px; resize: vertical; font-size: 14px; word-break: break-all; }
+
+/* settings */
+.settings { background: var(--panel); border: 1.5px solid var(--line); border-radius: 14px; padding: 20px 18px; display: grid; gap: 20px; min-width: 0; }
+.settings h2 { margin: 0; font-family: var(--font-mono); font-size: 1rem; letter-spacing: .08em; }
+.fields { display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 20px 24px; }
+.field { display: grid; gap: 6px; align-content: start; justify-items: center; min-width: 0; }
+.field.wide { grid-column: 1 / -1; }
+.lab { font-weight: 700; font-size: .9rem; }
+.sub { font-size: .85rem; color: var(--ink-soft); }
+.stepper { display: inline-flex; align-items: center; justify-self: center; border: 1.5px solid var(--line-strong); border-radius: 10px; overflow: hidden; background: var(--panel); }
+.stepper button { width: 48px; height: 46px; border: 0; background: transparent; color: var(--ink); font-family: var(--font-body); font-weight: 700; font-size: 1.3rem; cursor: pointer; }
+.stepper output { min-width: 3em; text-align: center; font-family: var(--font-mono); font-weight: 700; font-size: 1.1rem; font-variant-numeric: tabular-nums; }
+.field .seg { justify-self: center; }
+.switch { display: flex; align-items: center; justify-content: center; gap: 12px; cursor: pointer; font-weight: 700; min-height: 46px; }
+.switch input {
+  appearance: none;
+  -webkit-appearance: none;
+  flex: none;
+  position: relative;
+  width: 54px;
+  height: 32px;
+  margin: 0;
+  border-radius: 999px;
+  background: var(--line-strong);
+  cursor: pointer;
+  transition: background .15s;
+}
+.switch input::before {
+  content: "";
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  background: var(--panel);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, .35);
+  transition: transform .15s;
+}
+.switch input:checked { background: var(--fixed); }
+.switch input:checked::before { transform: translateX(22px); }
+details.rec { display: grid; gap: 10px; }
+details.rec summary { cursor: pointer; font-weight: 700; min-height: 40px; display: flex; align-items: center; justify-content: center; }
+details.rec[open] summary { margin-bottom: 6px; }
+body.busy .settings, body.busy .toolbar, body.busy .nav, body.busy .find { opacity: .5; pointer-events: none; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="top">
+    <h1 class="mark">SEKI LAB<span class="dot">.</span></h1>
+    <p class="tagline">出席番号で回す、席替え抽選</p>
+    <div class="langrow">
+      <div class="seg" id="langSeg" role="group" aria-label="Language">
+        <button type="button" data-v="ja" aria-pressed="true">日本語</button>
+        <button type="button" data-v="en" aria-pressed="false">English</button>
+      </div>
+    </div>
+  </header>
+
+  <main class="main">
+    <div class="toolbar">
+      <div class="seg" id="modeSeg" role="group" aria-label="表示と編集の切り替え">
+        <button type="button" data-v="view" aria-pressed="true">席を見る</button>
+        <button type="button" data-v="seats" aria-pressed="false">席の有無</button>
+        <button type="button" data-v="fixed" aria-pressed="false">固定席</button>
+      </div>
+      <p class="meta" id="meta"></p>
+    </div>
+
+    <div class="statusrow">
+      <span class="status" id="status">見本の席</span>
+      <p class="hint" id="hint"></p>
+    </div>
+
+    <nav class="nav" id="nav" aria-label="案の切り替え" hidden></nav>
+
+    <div class="front" aria-hidden="true">黒板</div>
+    <div id="stageHost"></div>
+    <div class="rear" aria-hidden="true">後ろ</div>
+
+    <div class="editor" id="editor" hidden>
+      <p class="ed-title" id="edLabel"></p>
+      <div class="row">
+        <label for="fxNum">固定する出席番号</label>
+        <input id="fxNum" type="number" inputmode="numeric" min="1" max="60">
+        <button class="btn small" id="fxSet" type="button">固定する</button>
+        <button class="btn small" id="fxClear" type="button">この席の固定を解除</button>
+      </div>
+    </div>
+
+    <div class="actions">
+      <div class="rounds">
+        <span class="lab" id="lab-rounds">連続で回す</span>
+        <div class="stepper" data-k="rounds" role="group" aria-labelledby="lab-rounds">
+          <button type="button" data-d="-1" aria-label="回数を1回減らす">−</button>
+          <output id="out-rounds">3</output>
+          <button type="button" data-d="1" aria-label="回数を1回増やす">＋</button>
+        </div>
+      </div>
+      <button class="btn primary" id="start" type="button">3回まわす</button>
+      <button class="btn confirm" id="confirm" type="button" hidden>この案で確定</button>
+    </div>
+    <p class="note" id="note" role="status" aria-live="polite"></p>
+
+    <div class="find">
+      <label for="find">番号で探す</label>
+      <input id="find" type="number" inputmode="numeric" min="1" max="60" placeholder="例 12">
+      <output id="findOut" for="find"></output>
+    </div>
+  </main>
+
+  <aside class="settings" id="settings" aria-labelledby="setH">
+    <h2 id="setH">SETTINGS</h2>
+    <div class="fields">
+      <div class="field">
+        <span class="lab" id="lab-n">人数</span>
+        <div class="stepper" data-k="n" role="group" aria-labelledby="lab-n">
+          <button type="button" data-d="-1" aria-label="人数を1人減らす">−</button>
+          <output id="out-n">25</output>
+          <button type="button" data-d="1" aria-label="人数を1人増やす">＋</button>
+        </div>
+        <span class="sub">1番から順に抽選します</span>
+      </div>
+      <div class="field">
+        <span class="lab" id="lab-cols">横の席数（列）</span>
+        <div class="stepper" data-k="cols" role="group" aria-labelledby="lab-cols">
+          <button type="button" data-d="-1" aria-label="列を1つ減らす">−</button>
+          <output id="out-cols">5</output>
+          <button type="button" data-d="1" aria-label="列を1つ増やす">＋</button>
+        </div>
+      </div>
+      <div class="field">
+        <span class="lab" id="lab-rows">縦の席数（行）</span>
+        <div class="stepper" data-k="rows" role="group" aria-labelledby="lab-rows">
+          <button type="button" data-d="-1" aria-label="行を1つ減らす">−</button>
+          <output id="out-rows">5</output>
+          <button type="button" data-d="1" aria-label="行を1つ増やす">＋</button>
+        </div>
+      </div>
+      <div class="field">
+        <span class="lab" id="lab-style">抽選の見せ方</span>
+        <div class="seg" id="styleSeg" role="group" aria-labelledby="lab-style">
+          <button type="button" data-v="one" aria-pressed="true">ひとつずつ</button>
+          <button type="button" data-v="all" aria-pressed="false">一気に</button>
+        </div>
+      </div>
+      <div class="field">
+        <span class="lab" id="lab-fixed">固定席</span>
+        <span class="sub" id="fixedState">固定している人はいません</span>
+        <button class="btn small" id="fixedClear" type="button" style="justify-self:center">固定席をすべて解除</button>
+      </div>
+      <div class="field wide">
+        <label class="switch"><input id="avoid" type="checkbox"><span>前回と同じ席を避ける</span></label>
+        <span class="sub" id="prevState">前回の記録：なし</span>
+      </div>
+    </div>
+
+    <details class="rec">
+      <summary>前回の記録をコードで持ち運ぶ</summary>
+      <p class="sub" style="margin:0">確定すると、この端末のブラウザに記録されます。別の端末で使うときは、コードをコピーして貼り付けてください。</p>
+      <label for="code" class="lab">記録コード</label>
+      <textarea id="code" spellcheck="false" placeholder="SK1|5|5|…"></textarea>
+      <div class="row">
+        <button class="btn small" id="codeMake" type="button">表示中の席をコードにしてコピー</button>
+        <button class="btn small" id="codeLoad" type="button">このコードを前回の記録にする</button>
+        <button class="btn small" id="codeClear" type="button">前回の記録を消す</button>
+      </div>
+      <p class="note" id="codeNote" role="status" aria-live="polite"></p>
+    </details>
+  </aside>
+</div>
+
+<script>
+(function () {
+  'use strict';
+  var $ = function (s) { return document.querySelector(s); };
+  var STORE = 'seki-lab:v1';
+  var reduce = !!(window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches);
+  var LIM = { n: [1, 60], cols: [1, 12], rows: [1, 10], rounds: [1, 8] };
+
+  var S = {
+    cols: 5, rows: 5, n: 25, rounds: 3, style: 'one', avoid: false,
+    disabled: new Set(), fixed: new Map(), prev: null, avoidSrc: null,
+    slides: [], cur: 0, kind: 'sample', mode: 'view', selected: -1, find: 0,
+    drawing: false, progress: '', lang: 'ja'
+  };
+  var slideCells = [];
+  var scrollQueued = false;
+
+  /* texts: Japanese and English */
+  var D = {
+    ja: {
+      tagline: '出席番号で回す、席替え抽選',
+      mode_view: '席を見る', mode_seats: '席の有無', mode_fixed: '固定席',
+      front: '黒板', rear: '後ろ',
+      fx_label: '固定する出席番号', fx_set: '固定する', fx_clear: 'この席の固定を解除',
+      rounds_lab: '連続で回す',
+      people_lab: '人数', people_sub: '1番から順に抽選します',
+      cols_lab: '横の席数（列）', rows_lab: '縦の席数（行）',
+      style_lab: '抽選の見せ方', style_one: 'ひとつずつ', style_all: '一気に',
+      fixed_lab: '固定席', fixed_clear: '固定席をすべて解除',
+      avoid_lab: '前回と同じ席を避ける',
+      rec_sum: '前回の記録をコードで持ち運ぶ',
+      rec_p: '確定すると、この端末のブラウザに記録されます。別の端末で使うときは、コードをコピーして貼り付けてください。',
+      code_lab: '記録コード', code_make: '表示中の席をコードにしてコピー', code_load: 'このコードを前回の記録にする', code_clear: '前回の記録を消す',
+      find_lab: '番号で探す', find_ph: '例 12',
+      a_mode: '表示と編集の切り替え', a_nav: 'パターンの切り替え',
+      a_rounds_dec: '回数を1回減らす', a_rounds_inc: '回数を1回増やす',
+      a_n_dec: '人数を1人減らす', a_n_inc: '人数を1人増やす',
+      a_cols_dec: '列を1つ減らす', a_cols_inc: '列を1つ増やす',
+      a_rows_dec: '行を1つ減らす', a_rows_inc: '行を1つ増やす',
+      a_prev: '前へ', a_next: '次へ', a_pick: '選ぶ', chart: '座席表',
+      colon: '：', sep: '　／　', join: '・', empty_mark: '空',
+      short: '席が足りません。席を増やすか、人数を減らしてください。',
+      seat_name: function (r, c) { return '前から' + r + '行目・左から' + c + '列目'; },
+      lab_off: '：使わない席',
+      lab_no: function (v) { return '：' + v + '番'; },
+      lab_empty: '：空席',
+      lab_fixed: function (v) { return '：' + v + '番に固定'; },
+      st_setup: '席の設定中', st_prev: '前回の席', st_confirmed: '確定ずみ',
+      st_pending_n: function (L) { return L + '　未確定'; },
+      st_pending_one: '今回の結果　未確定',
+      meta_head: function (n, en) { return '1〜' + n + '番　／　席 ' + en; },
+      meta_short: function (k) { return '　<span class="warn">席が' + k + 'つ足りません</span>'; },
+      meta_spare: function (k) { return '（空き ' + k + '）'; },
+      cond_fixed: function (k) { return '固定 ' + k + '人'; },
+      cond_avoid: '前回の席を避ける', cond_avoid_none: '前回の記録なし', cond_random: '完全ランダム',
+      sel_seat: '選んだ席：',
+      confirm_n: function (L) { return L + 'で確定'; }, confirm_one: 'この結果で確定',
+      prev_yes: function (k) { return '前回の記録：あり（' + k + '人分）'; },
+      prev_none: '前回の記録：なし',
+      prev_mismatch: '　席の並びが違うため、同じ位置だけを避けます',
+      fixed_n: function (k) { return k + '人を固定しています'; }, fixed_none: '固定している人はいません',
+      hint_seats: '席をタップすると、使う席と使わない席が切り替わります。',
+      hint_fixed: '席をタップして、その席に固定する出席番号を決めます。角が色づいた席が固定席です。',
+      hint_swipe: '左右にスワイプするか、ボタンで見比べられます。',
+      draw_n: function (k) { return k + '回まわす'; }, draw_one: 'まわす',
+      find_mode: '「席を見る」に切り替えると探せます。',
+      find_hit: function (v, name) { return v + '番は ' + name; },
+      find_none: function (raw) { return raw + '番の席は見つかりません。'; },
+      add_rows: function (k) { return '後ろに' + k + '行'; },
+      add_cols: function (k) { return '横に' + k + '列'; },
+      add_msg: function (parts) { return '席が足りんかったから、' + parts.join('と') + '足しました。'; },
+      add_more: 'これ以上は増やせないので、人数を減らしてください。',
+      prog_n: function (p, N) { return p + ' / ' + N + ' 回目'; }, prog_one: '抽選中…',
+      bad_note: function (list) { return list.join('・') + 'は、前回と同じ席の人がいます。気になるときは、もう一度まわしてください。'; },
+      ready_n: function (N) { return N + '通りできました。左右にスワイプして見比べて、決めたものを「確定」してください。'; },
+      ready_one: '抽選が終わりました。よければ「この結果で確定」を押してください。',
+      confirmed_note: function (pick) { return (pick ? pick + 'で' : '') + '確定しました。来月は「前回と同じ席を避ける」をオンにすると、この席を避けて抽選できます。'; },
+      fx_err: function (n) { return '1〜' + n + ' の出席番号を入れてください。'; },
+      fx_done: function (v, name) { return v + '番を「' + name + '」に固定しました。'; },
+      fx_cleared: 'この席の固定を解除しました。', fx_all: '固定席をすべて解除しました。',
+      code_first: '先に抽選するか、前回の記録を読み込んでください。',
+      code_copied: 'コピーしました。', code_selected: 'コードを選択しました。コピーしてください。',
+      code_bad: 'コードを読み取れませんでした。「SK1|」から始まる文字列を貼り付けてください。',
+      code_loaded: function (k) { return '前回の記録として読み込みました（' + k + '人分）。'; },
+      code_cleared: '前回の記録を消しました。',
+      prev_shown: '前回の席を表示しています。'
+    },
+    en: {
+      tagline: 'Seating draws by roll number',
+      mode_view: 'View seats', mode_seats: 'Seats on/off', mode_fixed: 'Fixed seats',
+      front: 'Blackboard', rear: 'Back',
+      fx_label: 'Roll number to pin', fx_set: 'Pin', fx_clear: 'Unpin this seat',
+      rounds_lab: 'Rounds in a row',
+      people_lab: 'People', people_sub: 'Draws roll numbers from 1 up',
+      cols_lab: 'Columns (seats across)', rows_lab: 'Rows (seats deep)',
+      style_lab: 'Reveal style', style_one: 'One by one', style_all: 'All at once',
+      fixed_lab: 'Fixed seats', fixed_clear: 'Unpin all',
+      avoid_lab: 'Avoid last time’s seats',
+      rec_sum: 'Carry the last record as a code',
+      rec_p: 'Confirming saves the record in this browser. To use it on another device, copy the code and paste it there.',
+      code_lab: 'Record code', code_make: 'Copy code for the seats shown', code_load: 'Use this code as the last record', code_clear: 'Clear the last record',
+      find_lab: 'Find by number', find_ph: 'e.g. 12',
+      a_mode: 'Switch between viewing and editing', a_nav: 'Switch between draws',
+      a_rounds_dec: 'One round fewer', a_rounds_inc: 'One round more',
+      a_n_dec: 'One person fewer', a_n_inc: 'One person more',
+      a_cols_dec: 'One column fewer', a_cols_inc: 'One column more',
+      a_rows_dec: 'One row fewer', a_rows_inc: 'One row more',
+      a_prev: 'Previous', a_next: 'Next', a_pick: 'Choose', chart: 'Seating chart',
+      colon: ': ', sep: ' / ', join: ', ', empty_mark: '–',
+      short: 'Not enough seats. Add seats or reduce the number of people.',
+      seat_name: function (r, c) { return 'Row ' + r + ' from front, column ' + c + ' from left'; },
+      lab_off: ': unused seat',
+      lab_no: function (v) { return ': No. ' + v; },
+      lab_empty: ': empty seat',
+      lab_fixed: function (v) { return ': pinned to No. ' + v; },
+      st_setup: 'Seat setup', st_prev: 'Last time’s seats', st_confirmed: 'Confirmed',
+      st_pending_n: function (L) { return L + ' · Not confirmed'; },
+      st_pending_one: 'This draw · Not confirmed',
+      meta_head: function (n, en) { return 'No. 1–' + n + ' / ' + en + ' seats'; },
+      meta_short: function (k) { return ' <span class="warn">' + k + (k > 1 ? ' seats' : ' seat') + ' short</span>'; },
+      meta_spare: function (k) { return ' (' + k + ' spare)'; },
+      cond_fixed: function (k) { return k + ' pinned'; },
+      cond_avoid: 'avoiding last seats', cond_avoid_none: 'no previous record', cond_random: 'fully random',
+      sel_seat: 'Selected seat: ',
+      confirm_n: function (L) { return 'Confirm ' + L; }, confirm_one: 'Confirm this result',
+      prev_yes: function (k) { return 'Last record: yes (' + k + ' people)'; },
+      prev_none: 'Last record: none',
+      prev_mismatch: ' The layout differs, so only matching positions are avoided.',
+      fixed_n: function (k) { return k + ' pinned'; }, fixed_none: 'No one is pinned',
+      hint_seats: 'Tap a seat to turn it on or off.',
+      hint_fixed: 'Tap a seat, then choose the roll number to pin there. Seats with a colored corner are pinned.',
+      hint_swipe: 'Swipe left or right, or use the buttons, to compare.',
+      draw_n: function (k) { return 'Draw ' + k + ' times'; }, draw_one: 'Draw',
+      find_mode: 'Switch to “View seats” to search.',
+      find_hit: function (v, name) { return 'No. ' + v + ': ' + name; },
+      find_none: function (raw) { return 'No seat found for ' + raw + '.'; },
+      add_rows: function (k) { return k + (k > 1 ? ' rows' : ' row') + ' at the back'; },
+      add_cols: function (k) { return k + (k > 1 ? ' columns' : ' column') + ' on the side'; },
+      add_msg: function (parts) { return 'Added ' + parts.join(' and ') + ' because there were not enough seats.'; },
+      add_more: ' Seats can’t be added any further. Reduce the number of people.',
+      prog_n: function (p, N) { return 'Round ' + p + ' / ' + N; }, prog_one: 'Drawing…',
+      bad_note: function (list) { return list.join(', ') + ': some people kept their previous seat. Draw again if you’d like.'; },
+      ready_n: function (N) { return N + ' options are ready. Swipe to compare, then confirm the one you like.'; },
+      ready_one: 'Draw finished. Press “Confirm this result” if you’re happy with it.',
+      confirmed_note: function (pick) { return (pick ? 'Confirmed ' + pick + '.' : 'Confirmed.') + ' Next month, turn on “Avoid last time’s seats” to draw away from these.'; },
+      fx_err: function (n) { return 'Enter a roll number from 1 to ' + n + '.'; },
+      fx_done: function (v, name) { return 'Pinned No. ' + v + ' (' + name + ').'; },
+      fx_cleared: 'Unpinned this seat.', fx_all: 'Unpinned all seats.',
+      code_first: 'Draw first, or load a previous record.',
+      code_copied: 'Copied.', code_selected: 'Code selected. Please copy it.',
+      code_bad: 'Couldn’t read that code. Paste a string that starts with “SK1|”.',
+      code_loaded: function (k) { return 'Loaded as the last record (' + k + ' people).'; },
+      code_cleared: 'Last record cleared.',
+      prev_shown: 'Showing last time’s seats.'
+    }
+  };
+  function T(k) {
+    var v = D[S.lang][k];
+    return typeof v === 'function' ? v.apply(null, Array.prototype.slice.call(arguments, 1)) : v;
+  }
+  function applyStatic() {
+    document.documentElement.lang = S.lang;
+    [['.tagline', 'tagline'], ['#modeSeg [data-v="view"]', 'mode_view'], ['#modeSeg [data-v="seats"]', 'mode_seats'],
+     ['#modeSeg [data-v="fixed"]', 'mode_fixed'], ['.front', 'front'], ['.rear', 'rear'],
+     ['label[for="fxNum"]', 'fx_label'], ['#fxSet', 'fx_set'], ['#fxClear', 'fx_clear'], ['#lab-rounds', 'rounds_lab'],
+     ['#lab-n', 'people_lab'], ['#lab-n ~ .sub', 'people_sub'], ['#lab-cols', 'cols_lab'], ['#lab-rows', 'rows_lab'],
+     ['#lab-style', 'style_lab'], ['#styleSeg [data-v="one"]', 'style_one'], ['#styleSeg [data-v="all"]', 'style_all'],
+     ['#lab-fixed', 'fixed_lab'], ['#fixedClear', 'fixed_clear'], ['.switch span', 'avoid_lab'],
+     ['details.rec summary', 'rec_sum'], ['details.rec > p.sub', 'rec_p'], ['label[for="code"]', 'code_lab'],
+     ['#codeMake', 'code_make'], ['#codeLoad', 'code_load'], ['#codeClear', 'code_clear'], ['label[for="find"]', 'find_lab']
+    ].forEach(function (p) { var el = document.querySelector(p[0]); if (el) el.textContent = T(p[1]); });
+    [['#modeSeg', 'a_mode'], ['#nav', 'a_nav'],
+     ['.stepper[data-k="rounds"] button[data-d="-1"]', 'a_rounds_dec'], ['.stepper[data-k="rounds"] button[data-d="1"]', 'a_rounds_inc'],
+     ['.stepper[data-k="n"] button[data-d="-1"]', 'a_n_dec'], ['.stepper[data-k="n"] button[data-d="1"]', 'a_n_inc'],
+     ['.stepper[data-k="cols"] button[data-d="-1"]', 'a_cols_dec'], ['.stepper[data-k="cols"] button[data-d="1"]', 'a_cols_inc'],
+     ['.stepper[data-k="rows"] button[data-d="-1"]', 'a_rows_dec'], ['.stepper[data-k="rows"] button[data-d="1"]', 'a_rows_inc']
+    ].forEach(function (p) { var el = document.querySelector(p[0]); if (el) el.setAttribute('aria-label', T(p[1])); });
+    $('#find').placeholder = T('find_ph');
+    setPressed('#langSeg', S.lang);
+  }
+
+  function key(r, c) { return r + ',' + c; }
+  function total() { return S.cols * S.rows; }
+  function keyOf(i) { return key(Math.floor(i / S.cols), i % S.cols); }
+  function isOff(i) { return S.disabled.has(keyOf(i)); }
+  function enabledSeats() {
+    var a = [];
+    for (var i = 0; i < total(); i++) if (!isOff(i)) a.push(i);
+    return a;
+  }
+  function validKey(k) {
+    if (typeof k !== 'string') return false;
+    var m = k.split(',');
+    if (m.length !== 2) return false;
+    var r = Number(m[0]), c = Number(m[1]);
+    return Number.isInteger(r) && Number.isInteger(c) && r >= 0 && c >= 0 && r < S.rows && c < S.cols;
+  }
+  function rnd(n) {
+    if (window.crypto && window.crypto.getRandomValues) {
+      var a = new Uint32Array(1);
+      var lim = Math.floor(4294967296 / n) * n;
+      var x;
+      do { window.crypto.getRandomValues(a); x = a[0]; } while (x >= lim);
+      return x % n;
+    }
+    return Math.floor(Math.random() * n);
+  }
+  function shuffle(a) {
+    for (var i = a.length - 1; i > 0; i--) {
+      var j = rnd(i + 1);
+      var t = a[i]; a[i] = a[j]; a[j] = t;
+    }
+    return a;
+  }
+  function sleep(ms) { return new Promise(function (res) { setTimeout(res, ms); }); }
+
+  function letter(i) { return String.fromCharCode(65 + i); }
+  function seatCode(i) { return String.fromCharCode(65 + Math.floor(i / S.cols)) + (i % S.cols + 1); }
+  function seatName(i) {
+    return T('seat_name', Math.floor(i / S.cols) + 1, i % S.cols + 1);
+  }
+
+  /* record code */
+  function encode(grid) {
+    return 'SK1|' + S.cols + '|' + S.rows + '|' + grid.map(function (v) { return v > 0 ? v : 0; }).join('.');
+  }
+  function decode(str) {
+    var p = String(str || '').trim().split('|');
+    if (p.length !== 4 || p[0] !== 'SK1') return null;
+    var cols = Number(p[1]), rows = Number(p[2]);
+    if (!Number.isInteger(cols) || !Number.isInteger(rows) || cols < 1 || rows < 1 || cols > 12 || rows > 10) return null;
+    var list = p[3].split('.').map(Number);
+    if (list.length !== cols * rows) return null;
+    var pos = new Map();
+    for (var i = 0; i < list.length; i++) {
+      var v = list[i];
+      if (!Number.isInteger(v) || v < 0 || v > 99) return null;
+      if (v > 0) {
+        if (pos.has(v)) return null;
+        pos.set(v, key(Math.floor(i / cols), i % cols));
+      }
+    }
+    return { cols: cols, rows: rows, pos: pos, code: 'SK1|' + cols + '|' + rows + '|' + list.join('.') };
+  }
+
+  /* persistence (per-browser convenience) */
+  function save() {
+    try {
+      localStorage.setItem(STORE, JSON.stringify({
+        cols: S.cols, rows: S.rows, n: S.n, rounds: S.rounds, style: S.style, avoid: S.avoid, lang: S.lang,
+        disabled: Array.from(S.disabled), fixed: Array.from(S.fixed),
+        prev: S.prev ? S.prev.code : ''
+      }));
+    } catch (e) { /* storage unavailable */ }
+  }
+  function load() {
+    var j = null;
+    try { j = JSON.parse(localStorage.getItem(STORE) || 'null'); } catch (e) { j = null; }
+    if (!j || typeof j !== 'object') return;
+    function num(v, lo, hi, d) { return Number.isInteger(v) && v >= lo && v <= hi ? v : d; }
+    S.cols = num(j.cols, 1, 12, S.cols);
+    S.rows = num(j.rows, 1, 10, S.rows);
+    S.n = num(j.n, 1, 60, S.n);
+    S.rounds = num(j.rounds, 1, 8, S.rounds);
+    S.style = j.style === 'all' ? 'all' : 'one';
+    S.avoid = j.avoid === true;
+    if (j.lang === 'en' || j.lang === 'ja') S.lang = j.lang;
+    if (Array.isArray(j.disabled)) j.disabled.forEach(function (k) { if (validKey(k)) S.disabled.add(k); });
+    if (Array.isArray(j.fixed)) {
+      var used = new Set();
+      j.fixed.forEach(function (p) {
+        if (Array.isArray(p) && validKey(p[0]) && Number.isInteger(p[1]) && p[1] >= 1 && p[1] <= S.n && !used.has(p[1])) {
+          used.add(p[1]); S.fixed.set(p[0], p[1]);
+        }
+      });
+    }
+    S.prev = decode(j.prev);
+    S.avoidSrc = S.prev;
+  }
+
+  /* drawing logic */
+  function computeDraw(useAvoid) {
+    var seats = enabledSeats();
+    if (seats.length < S.n) {
+      return { error: T('short'), grid: null };
+    }
+    var grid = new Array(total()).fill(0);
+    var fixedSeat = new Set(), fixedNum = new Set();
+    S.fixed.forEach(function (num, k) {
+      if (S.disabled.has(k) || num < 1 || num > S.n || !validKey(k)) return;
+      var p = k.split(',').map(Number);
+      var i = p[0] * S.cols + p[1];
+      grid[i] = num; fixedSeat.add(i); fixedNum.add(num);
+    });
+    var nums = [];
+    for (var v = 1; v <= S.n; v++) if (!fixedNum.has(v)) nums.push(v);
+    var free = seats.filter(function (i) { return !fixedSeat.has(i); });
+    var prev = useAvoid && S.avoidSrc ? S.avoidSrc.pos : null;
+    var best = null, bestC = Infinity;
+    var tries = prev ? 4000 : 1;
+    for (var t = 0; t < tries; t++) {
+      var order = shuffle(free.slice());
+      var c = 0;
+      if (prev) {
+        for (var j = 0; j < nums.length; j++) if (prev.get(nums[j]) === keyOf(order[j])) c++;
+      }
+      if (c < bestC) { best = order; bestC = c; if (c === 0) break; }
+    }
+    nums.forEach(function (v2, j2) { grid[best[j2]] = v2; });
+    return { grid: grid, conflicts: bestC === Infinity ? 0 : bestC };
+  }
+  function makeSample() {
+    var r = computeDraw(false);
+    S.slides = [r.grid || new Array(total()).fill(-1)];
+    S.cur = 0;
+    S.kind = 'sample';
+  }
+  function tryPrevAsResult() {
+    var p = S.avoidSrc;
+    if (!p || p.cols !== S.cols || p.rows !== S.rows || p.pos.size !== S.n) return false;
+    var grid = new Array(total()).fill(0);
+    var ok = true;
+    p.pos.forEach(function (k, num) {
+      if (S.disabled.has(k) || num > S.n) { ok = false; return; }
+      var q = k.split(',').map(Number);
+      grid[q[0] * S.cols + q[1]] = num;
+    });
+    if (!ok) return false;
+    S.slides = [grid]; S.cur = 0; S.kind = 'prev';
+    return true;
+  }
+  function validFixedCount() {
+    var n = 0;
+    S.fixed.forEach(function (num, k) { if (!S.disabled.has(k) && num <= S.n) n++; });
+    return n;
+  }
+
+  /* rendering: plate */
+  function buildPlate(grid, edit) {
+    var plate = document.createElement('div');
+    plate.className = 'plate';
+    plate.style.setProperty('--cols', S.cols);
+    var cells = [];
+    for (var i = 0; i < total(); i++) {
+      var k = keyOf(i), off = S.disabled.has(k), fx = S.fixed.get(k);
+      var b = document.createElement(edit ? 'button' : 'div');
+      if (edit) b.type = 'button'; else b.setAttribute('role', 'img');
+      b.className = 'seat';
+      b.dataset.i = String(i);
+      var num = document.createElement('span');
+      num.className = 'num';
+      b.appendChild(num);
+      var label = seatName(i);
+      if (off) {
+        b.classList.add('off');
+        num.textContent = S.mode === 'seats' ? '＋' : '';
+        label += T('lab_off');
+      } else if (!edit) {
+        var v = grid[i];
+        if (v > 0) { num.textContent = v; label += T('lab_no', v); }
+        else if (v === 0) { num.textContent = T('empty_mark'); b.classList.add('empty'); label += T('lab_empty'); }
+        if (fx && fx <= S.n) b.classList.add('fixed');
+        if (S.find > 0 && v === S.find) b.classList.add('hit');
+      } else {
+        if (fx && fx <= S.n) { num.textContent = fx; b.classList.add('fixed'); label += T('lab_fixed', fx); }
+        if (i === S.selected) b.classList.add('sel');
+      }
+      b.setAttribute('aria-label', label);
+      plate.appendChild(b);
+      cells.push({ el: b, num: num });
+    }
+    return { el: plate, cells: cells };
+  }
+
+  function renderStage() {
+    var host = $('#stageHost');
+    host.replaceChildren();
+    slideCells = [];
+    if (S.mode === 'view') {
+      var track = document.createElement('div');
+      track.className = 'track';
+      track.id = 'track';
+      S.slides.forEach(function (g, idx) {
+        var slide = document.createElement('div');
+        slide.className = 'slide';
+        slide.setAttribute('role', 'group');
+        slide.setAttribute('aria-label', S.slides.length > 1 ? letter(idx) : T('chart'));
+        var built = buildPlate(g, false);
+        slideCells.push(built.cells);
+        slide.appendChild(built.el);
+        track.appendChild(slide);
+      });
+      host.appendChild(track);
+      track.addEventListener('scroll', onScroll, { passive: true });
+      track.scrollLeft = S.cur * track.clientWidth;
+    } else {
+      host.appendChild(buildPlate(null, true).el);
+    }
+  }
+
+  function onScroll() {
+    if (scrollQueued) return;
+    scrollQueued = true;
+    requestAnimationFrame(function () {
+      scrollQueued = false;
+      var t = $('#track');
+      if (!t || !t.clientWidth) return;
+      var idx = Math.round(t.scrollLeft / t.clientWidth);
+      idx = Math.max(0, Math.min(S.slides.length - 1, idx));
+      if (idx !== S.cur) {
+        S.cur = idx;
+        renderNav();
+        renderStatus();
+        renderConfirm();
+        updateFind();
+      }
+    });
+  }
+  function goTo(i, smooth) {
+    i = Math.max(0, Math.min(S.slides.length - 1, i));
+    S.cur = i;
+    var t = $('#track');
+    if (t) t.scrollTo({ left: i * t.clientWidth, behavior: (smooth && !reduce) ? 'smooth' : 'auto' });
+    renderNav();
+    renderStatus();
+    renderConfirm();
+    updateFind();
+  }
+  window.addEventListener('resize', function () {
+    var t = $('#track');
+    if (t) t.scrollLeft = S.cur * t.clientWidth;
+  });
+
+  function renderNav() {
+    var nav = $('#nav');
+    var multi = S.mode === 'view' && S.slides.length > 1;
+    nav.hidden = !multi;
+    if (!multi) { nav.replaceChildren(); return; }
+    var prev = document.createElement('button');
+    prev.type = 'button'; prev.className = 'arrow'; prev.textContent = '‹';
+    prev.setAttribute('aria-label', T('a_prev')); prev.dataset.go = 'prev';
+    prev.disabled = S.cur === 0;
+    var next = document.createElement('button');
+    next.type = 'button'; next.className = 'arrow'; next.textContent = '›';
+    next.setAttribute('aria-label', T('a_next')); next.dataset.go = 'next';
+    next.disabled = S.cur === S.slides.length - 1;
+    var tabs = document.createElement('div');
+    tabs.className = 'tabs';
+    tabs.setAttribute('role', 'group');
+    tabs.setAttribute('aria-label', T('a_pick'));
+    S.slides.forEach(function (g, idx) {
+      var t = document.createElement('button');
+      t.type = 'button'; t.className = 'tab'; t.dataset.tab = String(idx);
+      t.textContent = letter(idx);
+      t.setAttribute('aria-pressed', idx === S.cur ? 'true' : 'false');
+      t.setAttribute('aria-selected', idx === S.cur ? 'true' : 'false');
+      tabs.appendChild(t);
+    });
+    nav.replaceChildren(prev, tabs, next);
+  }
+
+  function renderStatus() {
+    var st = $('#status');
+    var txt;
+    if (S.drawing) txt = S.progress;
+    else if (S.mode !== 'view') txt = T('st_setup');
+    else if (S.kind === 'sample') txt = '';
+    else if (S.kind === 'prev') txt = T('st_prev');
+    else if (S.kind === 'confirmed') txt = T('st_confirmed');
+    else txt = S.slides.length > 1 ? T('st_pending_n', letter(S.cur)) : T('st_pending_one');
+    st.textContent = txt;
+    st.hidden = !txt;
+    st.classList.toggle('live', S.drawing);
+  }
+
+  function renderMeta() {
+    var en = enabledSeats().length;
+    var cs = [];
+    var fx = validFixedCount();
+    if (fx) cs.push(T('cond_fixed', fx));
+    if (S.avoid) cs.push(S.avoidSrc ? T('cond_avoid') : T('cond_avoid_none'));
+    var html = T('meta_head', S.n, en);
+    if (en < S.n) html += T('meta_short', S.n - en);
+    else if (en > S.n) html += T('meta_spare', en - S.n);
+    html += T('sep') + (cs.length ? cs.join(T('join')) : T('cond_random'));
+    $('#meta').innerHTML = html;
+  }
+
+  function renderEditor() {
+    var ed = $('#editor');
+    var show = S.mode === 'fixed' && S.selected >= 0 && S.selected < total() && !isOff(S.selected);
+    ed.hidden = !show;
+    if (!show) return;
+    $('#edLabel').textContent = T('sel_seat') + seatName(S.selected);
+    var fx = S.fixed.get(keyOf(S.selected));
+    $('#fxNum').max = String(S.n);
+    $('#fxNum').value = fx ? String(fx) : '';
+    $('#fxClear').disabled = !fx;
+  }
+
+  function setPressed(id, val) {
+    var btns = document.querySelectorAll(id + ' button');
+    for (var i = 0; i < btns.length; i++) btns[i].setAttribute('aria-pressed', btns[i].dataset.v === val ? 'true' : 'false');
+  }
+
+  function renderConfirm() {
+    var c = $('#confirm');
+    c.hidden = !(S.kind === 'drawn' && !S.drawing && S.mode === 'view');
+    c.textContent = S.slides.length > 1 ? T('confirm_n', letter(S.cur)) : T('confirm_one');
+  }
+
+  function renderControls() {
+    setPressed('#modeSeg', S.mode);
+    setPressed('#styleSeg', S.style);
+    $('#out-n').textContent = S.n;
+    $('#out-cols').textContent = S.cols;
+    $('#out-rows').textContent = S.rows;
+    $('#out-rounds').textContent = S.rounds;
+    $('#avoid').checked = S.avoid;
+    var ps = S.avoidSrc ? T('prev_yes', S.avoidSrc.pos.size) : T('prev_none');
+    if (S.avoidSrc && (S.avoidSrc.cols !== S.cols || S.avoidSrc.rows !== S.rows)) ps += T('prev_mismatch');
+    $('#prevState').textContent = ps;
+    var fx = validFixedCount();
+    $('#fixedState').textContent = fx ? T('fixed_n', fx) : T('fixed_none');
+    $('#fixedClear').disabled = !fx;
+    var hints = {
+      view: '',
+      seats: T('hint_seats'),
+      fixed: T('hint_fixed')
+    };
+    $('#hint').textContent = (S.mode === 'view' && S.slides.length > 1 && !S.drawing) ? T('hint_swipe') : hints[S.mode];
+    var short = enabledSeats().length < S.n;
+    $('#start').disabled = S.drawing || short;
+    $('#start').textContent = S.rounds === 1 ? T('draw_one') : T('draw_n', S.rounds);
+    document.body.classList.toggle('busy', S.drawing);
+    renderStatus();
+    renderConfirm();
+    if (short && !S.drawing) note(T('short'), true);
+  }
+
+  function updateFind() {
+    var raw = $('#find').value;
+    var out = $('#findOut');
+    if (raw === '') { out.textContent = ''; return; }
+    if (S.mode !== 'view') { out.textContent = T('find_mode'); return; }
+    var v = Number(raw);
+    var g = S.slides[S.cur];
+    var i = (g && v > 0) ? g.indexOf(v) : -1;
+    var pre = S.slides.length > 1 ? letter(S.cur) + T('colon') : '';
+    out.textContent = i >= 0 ? pre + T('find_hit', v, seatName(i)) : pre + T('find_none', raw);
+  }
+
+  function renderAll() {
+    S.find = $('#find').value === '' ? 0 : Number($('#find').value);
+    renderMeta();
+    renderStage();
+    renderNav();
+    renderEditor();
+    renderControls();
+    updateFind();
+  }
+
+  function note(msg, warn) {
+    var n = $('#note');
+    n.textContent = msg || '';
+    n.classList.toggle('warn', !!warn);
+  }
+
+  function changed(msg) {
+    makeSample();
+    save();
+    renderAll();
+    note(msg || '');
+  }
+
+  /* when people outnumber seats, add a row, then a column, then a row again, and so on */
+  function autoAdd() {
+    var rowsAdded = 0, colsAdded = 0;
+    var nextRow = true;
+    while (enabledSeats().length < S.n) {
+      var canRow = S.rows < LIM.rows[1], canCol = S.cols < LIM.cols[1];
+      if (!canRow && !canCol) break;
+      if ((nextRow && canRow) || !canCol) { S.rows++; rowsAdded++; }
+      else { S.cols++; colsAdded++; }
+      nextRow = !nextRow;
+    }
+    var parts = [];
+    if (rowsAdded) parts.push(T('add_rows', rowsAdded));
+    if (colsAdded) parts.push(T('add_cols', colsAdded));
+    if (!parts.length) return '';
+    var msg = T('add_msg', parts);
+    if (enabledSeats().length < S.n) msg += T('add_more');
+    return msg;
+  }
+
+  function prune() {
+    Array.from(S.disabled).forEach(function (k) { if (!validKey(k)) S.disabled.delete(k); });
+    Array.from(S.fixed).forEach(function (p) { if (!validKey(p[0]) || p[1] > S.n) S.fixed.delete(p[0]); });
+    S.selected = -1;
+  }
+
+  /* the draw: several rounds in a row, each becomes a slide */
+  async function startDraw() {
+    if (S.drawing) return;
+    var N = S.rounds;
+    var results = [];
+    for (var r = 0; r < N; r++) {
+      var res = computeDraw(S.avoid);
+      if (!res.grid) { note(res.error, true); return; }
+      results.push(res);
+    }
+    S.drawing = true; S.mode = 'view'; S.selected = -1; S.slides = []; S.cur = 0; S.kind = 'drawn';
+    note('');
+
+    for (var p = 0; p < N; p++) {
+      S.slides.push(results[p].grid);
+      S.progress = N > 1 ? T('prog_n', p + 1, N) : T('prog_one');
+      S.cur = Math.max(0, p - 1);
+      renderAll();
+      if (p > 0) { goTo(p, true); await sleep(reduce ? 0 : 450); } else S.cur = 0;
+      var grid = results[p].grid;
+      var cells = slideCells[p];
+      var roll = [];
+      for (var i = 0; i < total(); i++) {
+        if (isOff(i)) continue;
+        var fx = S.fixed.get(keyOf(i));
+        if (fx && fx <= S.n && grid[i] === fx) continue;
+        roll.push(i);
+      }
+      var locked = new Set();
+      roll.forEach(function (i2) {
+        cells[i2].el.classList.add('rolling');
+        cells[i2].el.classList.remove('empty');
+        cells[i2].num.textContent = String(1 + rnd(S.n));
+      });
+      var timer = setInterval(function () {
+        roll.forEach(function (i3) { if (!locked.has(i3)) cells[i3].num.textContent = String(1 + rnd(S.n)); });
+      }, 70);
+      await sleep(reduce ? 200 : 1000);
+      var order = shuffle(roll.slice());
+      var gap = S.style === 'one' ? Math.min(180, Math.max(50, Math.round(2400 / Math.max(1, order.length)))) : 12;
+      for (var q = 0; q < order.length; q++) {
+        var idx = order[q];
+        locked.add(idx);
+        var el = cells[idx].el;
+        el.classList.remove('rolling');
+        var v = grid[idx];
+        cells[idx].num.textContent = v > 0 ? String(v) : T('empty_mark');
+        if (v === 0) el.classList.add('empty');
+        if (!reduce) el.classList.add('pop');
+        await sleep(gap);
+      }
+      clearInterval(timer);
+      await sleep(reduce ? 0 : 350);
+    }
+
+    S.drawing = false;
+    S.cur = N - 1;
+    renderAll();
+    var bad = [];
+    results.forEach(function (x, k) { if (x.conflicts > 0) bad.push(letter(k)); });
+    if (bad.length) {
+      note(T('bad_note', bad), true);
+    } else if (N > 1) {
+      note(T('ready_n', N));
+    } else {
+      note(T('ready_one'));
+    }
+  }
+
+  /* events */
+  $('#start').addEventListener('click', startDraw);
+
+  $('#confirm').addEventListener('click', function () {
+    if (S.kind !== 'drawn' || S.drawing) return;
+    var g = S.slides[S.cur];
+    var pick = S.slides.length > 1 ? letter(S.cur) : '';
+    S.prev = decode(encode(g));
+    S.slides = [g]; S.cur = 0; S.kind = 'confirmed';
+    save();
+    renderAll();
+    note(T('confirmed_note', pick));
+  });
+
+  $('#stageHost').addEventListener('click', function (e) {
+    var b = e.target.closest('button.seat');
+    if (!b || S.drawing) return;
+    var i = Number(b.dataset.i);
+    var k = keyOf(i);
+    if (S.mode === 'seats') {
+      if (S.disabled.has(k)) S.disabled.delete(k);
+      else { S.disabled.add(k); S.fixed.delete(k); }
+      changed(autoAdd());
+    } else if (S.mode === 'fixed') {
+      if (S.disabled.has(k)) return;
+      S.selected = i;
+      renderStage();
+      renderEditor();
+      var f = $('#fxNum');
+      if (f) f.focus();
+    }
+  });
+
+  $('#nav').addEventListener('click', function (e) {
+    var b = e.target.closest('button');
+    if (!b || S.drawing) return;
+    if (b.dataset.go === 'prev') goTo(S.cur - 1, true);
+    else if (b.dataset.go === 'next') goTo(S.cur + 1, true);
+    else if (b.dataset.tab !== undefined) goTo(Number(b.dataset.tab), true);
+  });
+
+  function applyFixed() {
+    if (S.selected < 0) return;
+    var v = Number($('#fxNum').value);
+    if (!Number.isInteger(v) || v < 1 || v > S.n) { note(T('fx_err', S.n), true); return; }
+    Array.from(S.fixed).forEach(function (p) { if (p[1] === v) S.fixed.delete(p[0]); });
+    S.fixed.set(keyOf(S.selected), v);
+    var sel = S.selected;
+    makeSample(); save(); renderAll();
+    note(T('fx_done', v, seatName(sel)));
+  }
+  $('#fxSet').addEventListener('click', applyFixed);
+  $('#fxNum').addEventListener('keydown', function (e) { if (e.key === 'Enter') { e.preventDefault(); applyFixed(); } });
+  $('#fxClear').addEventListener('click', function () {
+    if (S.selected < 0) return;
+    S.fixed.delete(keyOf(S.selected));
+    makeSample(); save(); renderAll();
+    note(T('fx_cleared'));
+  });
+  $('#fixedClear').addEventListener('click', function () {
+    if (S.drawing) return;
+    S.fixed.clear();
+    changed(T('fx_all'));
+  });
+
+  document.addEventListener('click', function (e) {
+    if (S.drawing) return;
+    var sb = e.target.closest('.stepper button');
+    if (sb) {
+      var k = sb.parentNode.dataset.k;
+      var lim = LIM[k];
+      var v = Math.min(lim[1], Math.max(lim[0], S[k] + Number(sb.dataset.d)));
+      if (v === S[k]) return;
+      S[k] = v;
+      if (k === 'rounds') { save(); renderControls(); return; }
+      prune();
+      changed(k === 'n' ? autoAdd() : '');
+      return;
+    }
+    var seg = e.target.closest('.seg button');
+    if (!seg) return;
+    var id = seg.parentNode.id;
+    var val = seg.dataset.v;
+    if (id === 'modeSeg') { S.mode = val; S.selected = -1; renderAll(); }
+    else if (id === 'styleSeg') { S.style = val; save(); renderControls(); }
+    else if (id === 'langSeg') { S.lang = val; save(); applyStatic(); note(''); codeNote(''); renderAll(); }
+  });
+
+  $('#avoid').addEventListener('change', function (e) {
+    S.avoid = e.target.checked;
+    save();
+    renderMeta();
+  });
+
+  $('#find').addEventListener('input', function () {
+    if (S.mode !== 'view' && $('#find').value !== '') S.mode = 'view';
+    renderAll();
+  });
+
+  /* record code */
+  function codeNote(msg, warn) {
+    var n = $('#codeNote');
+    n.textContent = msg;
+    n.classList.toggle('warn', !!warn);
+  }
+  $('#codeMake').addEventListener('click', async function () {
+    var g = S.slides[S.cur];
+    var ok = g && S.kind !== 'sample' && g.every(function (v) { return v >= 0; });
+    if (!ok) { codeNote(T('code_first'), true); return; }
+    var code = encode(g);
+    var ta = $('#code');
+    ta.value = code;
+    try {
+      await navigator.clipboard.writeText(code);
+      codeNote(T('code_copied'));
+    } catch (e) {
+      ta.focus(); ta.select();
+      codeNote(T('code_selected'));
+    }
+  });
+  $('#codeLoad').addEventListener('click', function () {
+    var p = decode($('#code').value);
+    if (!p) { codeNote(T('code_bad'), true); return; }
+    S.prev = p; S.avoidSrc = p;
+    save();
+    renderAll();
+    codeNote(T('code_loaded', p.pos.size));
+  });
+  $('#codeClear').addEventListener('click', function () {
+    S.prev = null; S.avoidSrc = null;
+    save();
+    renderAll();
+    codeNote(T('code_cleared'));
+  });
+
+  /* start */
+  S.lang = /^ja/i.test(navigator.language || '') ? 'ja' : 'en';
+  load();
+  applyStatic();
+  if (!tryPrevAsResult()) makeSample();
+  renderAll();
+  if (S.kind === 'sample') note('');
+  else if (S.kind === 'prev') note(T('prev_shown'));
+})();
+</script>
+</body>
+</html>
+
+</body></html>
