@@ -105,7 +105,7 @@ header.top { display: flex; flex-wrap: wrap; align-items: baseline; justify-cont
 .mark .dot { color: var(--accent); }
 .tagline { margin: 0; color: var(--ink-soft); font-size: .92rem; }
 
-.langrow { flex: 0 0 100%; display: flex; justify-content: center; margin-top: 6px; }
+.langrow { flex: 0 0 100%; display: flex; flex-wrap: wrap; justify-content: center; gap: 8px 12px; margin-top: 6px; }
 .langrow .seg button { min-height: 40px; font-size: .85rem; padding: .3rem .9rem; }
 
 /* toolbar */
@@ -388,6 +388,10 @@ body.busy .settings, body.busy .toolbar, body.busy .nav, body.busy .find { opaci
         <button type="button" data-v="ja" aria-pressed="true">日本語</button>
         <button type="button" data-v="en" aria-pressed="false">English</button>
       </div>
+      <div class="seg" id="themeSeg" role="group" aria-label="色の切り替え">
+        <button type="button" data-v="light" aria-pressed="false">ホワイト</button>
+        <button type="button" data-v="dark" aria-pressed="false">ダーク</button>
+      </div>
     </div>
   </header>
 
@@ -516,7 +520,7 @@ body.busy .settings, body.busy .toolbar, body.busy .nav, body.busy .find { opaci
     cols: 5, rows: 5, n: 25, rounds: 3, style: 'one', avoid: false,
     disabled: new Set(), fixed: new Map(), prev: null, avoidSrc: null,
     slides: [], cur: 0, kind: 'sample', mode: 'view', selected: -1, find: 0,
-    drawing: false, progress: '', lang: 'ja'
+    drawing: false, progress: '', lang: 'ja', theme: 'light'
   };
   var slideCells = [];
   var scrollQueued = false;
@@ -538,7 +542,7 @@ body.busy .settings, body.busy .toolbar, body.busy .nav, body.busy .find { opaci
       rec_p: '確定すると、この端末のブラウザに記録されます。別の端末で使うときは、コードをコピーして貼り付けてください。',
       code_lab: '記録コード', code_make: '表示中の席をコードにしてコピー', code_load: 'このコードを前回の記録にする', code_clear: '前回の記録を消す',
       find_lab: '番号で探す', find_ph: '例 12',
-      a_mode: '表示と編集の切り替え', a_nav: 'パターンの切り替え',
+      a_mode: '表示と編集の切り替え', a_nav: 'パターンの切り替え', theme_light: 'ホワイト', theme_dark: 'ダーク', a_theme: '色の切り替え',
       a_rounds_dec: '回数を1回減らす', a_rounds_inc: '回数を1回増やす',
       a_n_dec: '人数を1人減らす', a_n_inc: '人数を1人増やす',
       a_cols_dec: '列を1つ減らす', a_cols_inc: '列を1つ増やす',
@@ -606,7 +610,7 @@ body.busy .settings, body.busy .toolbar, body.busy .nav, body.busy .find { opaci
       rec_p: 'Confirming saves the record in this browser. To use it on another device, copy the code and paste it there.',
       code_lab: 'Record code', code_make: 'Copy code for the seats shown', code_load: 'Use this code as the last record', code_clear: 'Clear the last record',
       find_lab: 'Find by number', find_ph: 'e.g. 12',
-      a_mode: 'Switch between viewing and editing', a_nav: 'Switch between draws',
+      a_mode: 'Switch between viewing and editing', a_nav: 'Switch between draws', theme_light: 'Light', theme_dark: 'Dark', a_theme: 'Color theme',
       a_rounds_dec: 'One round fewer', a_rounds_inc: 'One round more',
       a_n_dec: 'One person fewer', a_n_inc: 'One person more',
       a_cols_dec: 'One column fewer', a_cols_inc: 'One column more',
@@ -673,9 +677,9 @@ body.busy .settings, body.busy .toolbar, body.busy .nav, body.busy .find { opaci
      ['#lab-style', 'style_lab'], ['#styleSeg [data-v="one"]', 'style_one'], ['#styleSeg [data-v="all"]', 'style_all'],
      ['#lab-fixed', 'fixed_lab'], ['#fixedClear', 'fixed_clear'], ['.switch span', 'avoid_lab'],
      ['details.rec summary', 'rec_sum'], ['details.rec > p.sub', 'rec_p'], ['label[for="code"]', 'code_lab'],
-     ['#codeMake', 'code_make'], ['#codeLoad', 'code_load'], ['#codeClear', 'code_clear'], ['label[for="find"]', 'find_lab']
+     ['#themeSeg [data-v="light"]', 'theme_light'], ['#themeSeg [data-v="dark"]', 'theme_dark'], ['#codeMake', 'code_make'], ['#codeLoad', 'code_load'], ['#codeClear', 'code_clear'], ['label[for="find"]', 'find_lab']
     ].forEach(function (p) { var el = document.querySelector(p[0]); if (el) el.textContent = T(p[1]); });
-    [['#modeSeg', 'a_mode'], ['#nav', 'a_nav'],
+    [['#modeSeg', 'a_mode'], ['#nav', 'a_nav'], ['#themeSeg', 'a_theme'],
      ['.stepper[data-k="rounds"] button[data-d="-1"]', 'a_rounds_dec'], ['.stepper[data-k="rounds"] button[data-d="1"]', 'a_rounds_inc'],
      ['.stepper[data-k="n"] button[data-d="-1"]', 'a_n_dec'], ['.stepper[data-k="n"] button[data-d="1"]', 'a_n_inc'],
      ['.stepper[data-k="cols"] button[data-d="-1"]', 'a_cols_dec'], ['.stepper[data-k="cols"] button[data-d="1"]', 'a_cols_inc'],
@@ -683,6 +687,8 @@ body.busy .settings, body.busy .toolbar, body.busy .nav, body.busy .find { opaci
     ].forEach(function (p) { var el = document.querySelector(p[0]); if (el) el.setAttribute('aria-label', T(p[1])); });
     $('#find').placeholder = T('find_ph');
     setPressed('#langSeg', S.lang);
+    document.documentElement.setAttribute('data-theme', S.theme);
+    setPressed('#themeSeg', S.theme);
   }
 
   function key(r, c) { return r + ',' + c; }
@@ -753,7 +759,7 @@ body.busy .settings, body.busy .toolbar, body.busy .nav, body.busy .find { opaci
   function save() {
     try {
       localStorage.setItem(STORE, JSON.stringify({
-        cols: S.cols, rows: S.rows, n: S.n, rounds: S.rounds, style: S.style, avoid: S.avoid, lang: S.lang,
+        cols: S.cols, rows: S.rows, n: S.n, rounds: S.rounds, style: S.style, avoid: S.avoid, lang: S.lang, theme: S.theme,
         disabled: Array.from(S.disabled), fixed: Array.from(S.fixed),
         prev: S.prev ? S.prev.code : ''
       }));
@@ -771,6 +777,7 @@ body.busy .settings, body.busy .toolbar, body.busy .nav, body.busy .find { opaci
     S.style = j.style === 'all' ? 'all' : 'one';
     S.avoid = j.avoid === true;
     if (j.lang === 'en' || j.lang === 'ja') S.lang = j.lang;
+    if (j.theme === 'light' || j.theme === 'dark') S.theme = j.theme;
     if (Array.isArray(j.disabled)) j.disabled.forEach(function (k) { if (validKey(k)) S.disabled.add(k); });
     if (Array.isArray(j.fixed)) {
       var used = new Set();
@@ -1259,6 +1266,7 @@ body.busy .settings, body.busy .toolbar, body.busy .nav, body.busy .find { opaci
     var val = seg.dataset.v;
     if (id === 'modeSeg') { S.mode = val; S.selected = -1; renderAll(); }
     else if (id === 'styleSeg') { S.style = val; save(); renderControls(); }
+    else if (id === 'themeSeg') { S.theme = val; save(); applyStatic(); }
     else if (id === 'langSeg') { S.lang = val; save(); applyStatic(); note(''); codeNote(''); renderAll(); }
   });
 
@@ -1311,6 +1319,7 @@ body.busy .settings, body.busy .toolbar, body.busy .nav, body.busy .find { opaci
 
   /* start */
   S.lang = /^ja/i.test(navigator.language || '') ? 'ja' : 'en';
+  S.theme = (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) ? 'dark' : 'light';
   load();
   applyStatic();
   if (!tryPrevAsResult()) makeSample();
