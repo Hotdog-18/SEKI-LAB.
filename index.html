@@ -520,7 +520,7 @@ body.busy .settings, body.busy .toolbar, body.busy .nav, body.busy .find { opaci
     cols: 5, rows: 5, n: 25, rounds: 3, style: 'one', avoid: false,
     disabled: new Set(), fixed: new Map(), prev: null, avoidSrc: null,
     slides: [], cur: 0, kind: 'sample', mode: 'view', selected: -1, find: 0,
-    drawing: false, progress: '', lang: 'ja', theme: 'light'
+    drawing: false, progress: '', lang: 'ja', theme: 'light', themeChosen: false
   };
   var slideCells = [];
   var scrollQueued = false;
@@ -759,7 +759,7 @@ body.busy .settings, body.busy .toolbar, body.busy .nav, body.busy .find { opaci
   function save() {
     try {
       localStorage.setItem(STORE, JSON.stringify({
-        cols: S.cols, rows: S.rows, n: S.n, rounds: S.rounds, style: S.style, avoid: S.avoid, lang: S.lang, theme: S.theme,
+        cols: S.cols, rows: S.rows, n: S.n, rounds: S.rounds, style: S.style, avoid: S.avoid, lang: S.lang, theme: S.themeChosen ? S.theme : '',
         disabled: Array.from(S.disabled), fixed: Array.from(S.fixed),
         prev: S.prev ? S.prev.code : ''
       }));
@@ -777,7 +777,7 @@ body.busy .settings, body.busy .toolbar, body.busy .nav, body.busy .find { opaci
     S.style = j.style === 'all' ? 'all' : 'one';
     S.avoid = j.avoid === true;
     if (j.lang === 'en' || j.lang === 'ja') S.lang = j.lang;
-    if (j.theme === 'light' || j.theme === 'dark') S.theme = j.theme;
+    if (j.theme === 'light' || j.theme === 'dark') { S.theme = j.theme; S.themeChosen = true; }
     if (Array.isArray(j.disabled)) j.disabled.forEach(function (k) { if (validKey(k)) S.disabled.add(k); });
     if (Array.isArray(j.fixed)) {
       var used = new Set();
@@ -1266,7 +1266,7 @@ body.busy .settings, body.busy .toolbar, body.busy .nav, body.busy .find { opaci
     var val = seg.dataset.v;
     if (id === 'modeSeg') { S.mode = val; S.selected = -1; renderAll(); }
     else if (id === 'styleSeg') { S.style = val; save(); renderControls(); }
-    else if (id === 'themeSeg') { S.theme = val; save(); applyStatic(); }
+    else if (id === 'themeSeg') { S.theme = val; S.themeChosen = true; save(); applyStatic(); }
     else if (id === 'langSeg') { S.lang = val; save(); applyStatic(); note(''); codeNote(''); renderAll(); }
   });
 
@@ -1322,6 +1322,11 @@ body.busy .settings, body.busy .toolbar, body.busy .nav, body.busy .find { opaci
   S.theme = (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) ? 'dark' : 'light';
   load();
   applyStatic();
+  if (window.matchMedia) {
+    var mq = window.matchMedia('(prefers-color-scheme: dark)');
+    var onMq = function (e) { if (!S.themeChosen) { S.theme = e.matches ? 'dark' : 'light'; applyStatic(); } };
+    if (mq.addEventListener) mq.addEventListener('change', onMq); else if (mq.addListener) mq.addListener(onMq);
+  }
   if (!tryPrevAsResult()) makeSample();
   renderAll();
   if (S.kind === 'sample') note('');
